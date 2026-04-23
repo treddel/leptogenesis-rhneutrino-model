@@ -1,0 +1,167 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp, odeint
+from scipy.special import kn
+
+def model_ivp_bl(z, N):
+    N1 = N[0]
+    Nb = N[1]
+    #K = 70
+    ep = 2e-6
+    #gamma = 1e2
+    K = 10**-2
+    gamma = 50
+    delta = 2
+
+    f = 1/np.sqrt(1 + (gamma/z)**delta)
+    N1eq = 0.375* z**2 *kn(2, z)
+
+    K_eff = K*f
+    D_eff = z*K_eff*(kn(1,z)/kn(2,z))
+    W_id_eff = 0.25*K_eff* z**3 *kn(1,z)
+
+    dN1dz_eff = -D_eff*(N1 - N1eq)
+    dNbdz_eff = -ep*D_eff*(N1 - N1eq) - W_id_eff*Nb
+
+    dNdz = [dN1dz_eff, dNbdz_eff]
+    return dNdz
+
+
+def model_ivp_n1_del0(z, N):
+    N1 = N[0]
+    Nb = N[1]
+    ep = 2e-6
+    K = 100
+    gamma = 70
+    delta=0
+    f = 1/np.sqrt(1 + (gamma/z)**delta)
+    N1eq = 0.375* z**2 *kn(2, z)
+
+    K_eff = K*f
+    D_eff = z*K_eff*(kn(1,z)/kn(2,z))
+    W_id_eff = 0.25*K_eff* z**3 *kn(1,z)
+
+    dN1dz_eff = -D_eff*(N1 - N1eq)
+    dNbdz_eff = -ep*D_eff*(N1 - N1eq) - W_id_eff*Nb
+
+
+    return dN1dz_eff
+
+
+def model_ivp_n1_del2(z, N):
+    N1 = N[0]
+    Nb = N[1]
+    #K = 70
+    ep = 2e-6
+    #gamma = 1e2
+    K = 100
+    gamma = 70
+    delta=2
+    f = 1/np.sqrt(1 + (gamma/z)**delta)
+    N1eq = 0.375* z**2 *kn(2, z)
+
+    K_eff = K*f
+    D_eff = z*K_eff*(kn(1,z)/kn(2,z))
+    W_id_eff = 0.25*K_eff* z**3 *kn(1,z)
+
+    dN1dz_eff = -D_eff*(N1 - N1eq)
+    dNbdz_eff = -ep*D_eff*(N1 - N1eq) - W_id_eff*Nb
+
+
+    return dN1dz_eff
+
+
+def model_ivp_n1_del4(z, N):
+    N1 = N[0]
+    Nb = N[1]
+    #K = 70
+    ep = 2e-6
+    #gamma = 1e2
+    K = 100
+    gamma = 70
+    delta=4
+    f = 1/np.sqrt(1 + (gamma/z)**delta)
+    N1eq = 0.375* z**2 *kn(2, z)
+
+    K_eff = K*f
+    D_eff = z*K_eff*(kn(1,z)/kn(2,z))
+    W_id_eff = 0.25*K_eff* z**3 *kn(1,z)
+
+    dN1dz_eff = -D_eff*(N1 - N1eq)
+    dNbdz_eff = -ep*D_eff*(N1 - N1eq) - W_id_eff*Nb
+
+
+    return dN1dz_eff
+
+
+def model_ivp_n1_del6(z, N):
+    N1 = N[0]
+    Nb = N[1]
+    #K = 70
+    ep = 2e-6
+    #gamma = 1e2
+    K = 100
+    gamma = 70
+    delta=6
+    f = 1/np.sqrt(1 + (gamma/z)**delta)
+    N1eq = 0.375* z**2 *kn(2, z)
+
+    K_eff = K*f
+    D_eff = z*K_eff*(kn(1,z)/kn(2,z))
+    W_id_eff = 0.25*K_eff* z**3 *kn(1,z)
+
+    dN1dz_eff = -D_eff*(N1 - N1eq)
+    dNbdz_eff = -ep*D_eff*(N1 - N1eq) - W_id_eff*Nb
+
+
+    return dN1dz_eff
+
+
+N0 = [0, 0]
+z_span = [10 ** -4, 10 ** 2]
+z = np.linspace(z_span[0], z_span[1], 1000)
+
+z_line_low = 5.24*10**-8
+z_line_low_bar = np.zeros_like(z) + z_line_low
+z_line_high = 5.38*10**-8
+z_line_high_bar = np.zeros_like(z) + z_line_high
+N_ivp_bl = solve_ivp(model_ivp_bl, z_span, N0, atol=1e-15, rtol=1e-12)
+N1eq = 0.375 * z ** 2 * kn(2, z)
+
+plt.plot(N_ivp_bl.t, np.abs(N_ivp_bl.y[1]),'r-', label='numerical', linewidth=0.5)
+plt.plot(z, z_line_high_bar, 'b--', linewidth=0.25)
+plt.plot(z, z_line_low_bar, 'b--', label='observed []', linewidth=0.25)
+plt.legend()
+plt.xlabel('z = M$_1$ / T')
+plt.ylabel('$|N_{B-L}|$')
+plt.title("Alternative Cosmology: Weak Washout Scenario")
+plt.xscale('log')
+plt.yscale('log')
+plt.xlim([10**-2, 10**2])
+plt.ylim([10**-11, 10**-5])
+plt.show()
+
+
+N_ivp_n1_del0 = solve_ivp(model_ivp_n1_del0, z_span, N0, atol=1e-15, rtol=1e-12)
+N_ivp_n1_del2 = solve_ivp(model_ivp_n1_del2, z_span, N0, atol=1e-15, rtol=1e-12)
+N_ivp_n1_del4 = solve_ivp(model_ivp_n1_del4, z_span, N0, atol=1e-15, rtol=1e-12)
+N_ivp_n1_del6 = solve_ivp(model_ivp_n1_del6, z_span, N0, atol=1e-15, rtol=1e-12)
+
+
+plt.plot(z, N1eq, 'k--', label='$\eta_{N_1}^{eq}$', linewidth=0.5)
+plt.plot(N_ivp_n1_del0.t, N_ivp_n1_del0.y[0], 'r-', label='$\eta_{N_1} (\delta = 0)$', linewidth=0.5)
+plt.plot(N_ivp_n1_del2.t, N_ivp_n1_del2.y[0], 'b-', label='$\eta_{N_1} (\delta = 2)$', linewidth=0.5)
+plt.plot(N_ivp_n1_del4.t, N_ivp_n1_del4.y[0], 'g-', label='$\eta_{N_1} (\delta = 4)$', linewidth=0.5)
+plt.plot(N_ivp_n1_del6.t, N_ivp_n1_del6.y[0], 'm-', label='$\eta_{N_1} (\delta = 6)$', linewidth=0.5)
+plt.legend(loc=1)
+plt.xlabel('z = M$_1$ / T')
+plt.ylabel('$\eta_{N_1}$')
+plt.xscale('log')
+plt.yscale('log')
+plt.xlim([10**-2, 10**2])
+plt.ylim([10**-11, 10**1])
+plt.show()
+
+
+plt.close('all')
+
